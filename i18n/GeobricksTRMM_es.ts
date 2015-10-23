@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="it" sourcelanguage="">
+<!DOCTYPE TS><TS version="2.0">
 <context>
     <name>GeobricksTRMM</name>
     <message>
@@ -15,12 +15,12 @@
     <message>
         <location filename="../geobricks_trmm_qgis.py" line="68"/>
         <source>Download Data</source>
-        <translation>Acquisizione Dati</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../geobricks_trmm_qgis.py" line="112"/>
         <source>TRMM Data Downloader</source>
-        <translation>Acquisizione Dati TRMM</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../geobricks_trmm_qgis.py" line="120"/>
@@ -33,12 +33,12 @@
     <message>
         <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="14"/>
         <source>TRMM Data Downloader</source>
-        <translation>Acquisizione Dati TRMM</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="29"/>
         <source>FTP Credentials</source>
-        <translation type="unfinished">Credenziali FTP</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="41"/>
