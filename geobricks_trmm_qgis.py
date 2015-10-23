@@ -45,6 +45,7 @@ class GeobricksTRMM:
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
+        QgsMessageLog.logMessage('==================================================', 'Geobricks TRMM')
         self.iface = iface
         self.plugin_dir = os.path.dirname(__file__)
         locale = QSettings().value('locale/userLocale')[0:2]
@@ -52,16 +53,21 @@ class GeobricksTRMM:
             self.plugin_dir,
             'i18n',
             'GeobricksTRMM_{}.qm'.format(locale))
+        QgsMessageLog.logMessage('test: ' + str(locale), 'Geobricks TRMM')
+        QgsMessageLog.logMessage('test: ' + str(locale_path), 'Geobricks TRMM')
+        QgsMessageLog.logMessage('test: ' + str(os.path.exists(locale_path)), 'Geobricks TRMM')
         if os.path.exists(locale_path):
             self.translator = QTranslator()
             self.translator.load(locale_path)
             if qVersion() > '4.3.3':
                 QCoreApplication.installTranslator(self.translator)
+                QgsMessageLog.logMessage('test: ' + str(self.tr('pippo')), 'Geobricks TRMM')
+                QgsMessageLog.logMessage('test: ' + str(self.tr('non esiste')), 'Geobricks TRMM')
         self.dlg = GeobricksTRMMDialog()
         self.actions = []
-        self.menu = self.tr(u'&TRMM Data Downloader')
-        self.toolbar = self.iface.addToolBar(u'TRMM Data Downloader')
-        self.toolbar.setObjectName(u'TRMM Data Downloader')
+        self.menu = self.tr('Download Data')
+        self.toolbar = self.iface.addToolBar(self.tr('TRMM Data Downloader'))
+        self.toolbar.setObjectName(self.tr('TRMM Data Downloader'))
         self.dlg.download_path.clear()
         self.dlg.pushButton.clicked.connect(self.select_output_file)
         self.is_rendered = False

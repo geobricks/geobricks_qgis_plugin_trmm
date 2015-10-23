@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/plugins/GeobricksTRMM" >
+    <qresource prefix="/plugins/geobricks_qgis_plugin_trmm" >
         <file>icon.png</file>
     </qresource>
 </RCC>
