@@ -6,4 +6,5 @@ SOURCES = ../geobricks_trmm_qgis.py \
 TRANSLATIONS = GeobricksTRMM_it.ts \
                GeobricksTRMM_es.ts \
                GeobricksTRMM_fr.ts \
+               GeobricksTRMM_en.ts \
                GeobricksTRMM_pt.ts

@@ -1,5 +1,17 @@
 from ftplib import FTP
-from server.geobricks_trmm.config.trmm_config import config as conf
+import datetime
+import os
+
+
+conf = {
+    "source": {
+        "type": "FTP",
+        "ftp": {
+            "base_url": "arthurhou.pps.eosdis.nasa.gov",
+            "data_dir": "/pub/trmmdata/GIS/"
+        }
+    }
+}
 
 
 def list_years(username, password):
@@ -22,6 +34,7 @@ def list_years(username, password):
             except ValueError:
                 pass
         return out
+
 
 def list_months(username, password, year):
     """
@@ -70,43 +83,43 @@ def list_days(username, password, year, month):
         return out
 
 
-def list_layers(username, password, year, month, day):
-    """
-    List all the available layers for a given year and month.
-    @param year: e.g. '2010'
-    @type year: str | int
-    @param month: e.g. '02'
-    @type month: str | int
-    @param day: e.g. '02'
-    @type day: str | int
-    @return: An array of code/label/extensions objects.
-    """
-    month = month if type(month) is str else str(month)
-    month = month if len(month) == 2 else '0' + month
-    day = day if type(day) is str else str(day)
-    day = day if len(day) == 2 else '0' + day
-    if conf['source']['type'] == 'FTP':
-        ftp = FTP(conf['source']['ftp']['base_url'])
-        ftp.login(username, password)
-        ftp.cwd(conf['source']['ftp']['data_dir'])
-        ftp.cwd(str(year))
-        ftp.cwd(month)
-        ftp.cwd(day)
-        l = ftp.nlst()
-        ftp.quit()
-        l.sort()
-        fao_layers = filter(lambda x: '.tif' in x, l)
-        out = []
-        for layer in fao_layers:
-            if '.7.' in layer or '.7A.' in layer:
-                code = layer
-                hour = layer[0:layer.index('.tif')].split('.')[2]
-                label = layer[0:layer.index('.tif')].split('.')[0]
-                label += ' ('
-                label += '-'.join([str(year), month, day])
-                label += ', ' + hour + ')'
-                out.append({'code': code, 'label': label, 'extensions': ['.tif', '.tfw']})
-        return out
+# def list_layers(username, password, year, month, day):
+#     """
+#     List all the available layers for a given year and month.
+#     @param year: e.g. '2010'
+#     @type year: str | int
+#     @param month: e.g. '02'
+#     @type month: str | int
+#     @param day: e.g. '02'
+#     @type day: str | int
+#     @return: An array of code/label/extensions objects.
+#     """
+#     month = month if type(month) is str else str(month)
+#     month = month if len(month) == 2 else '0' + month
+#     day = day if type(day) is str else str(day)
+#     day = day if len(day) == 2 else '0' + day
+#     if conf['source']['type'] == 'FTP':
+#         ftp = FTP(conf['source']['ftp']['base_url'])
+#         ftp.login(username, password)
+#         ftp.cwd(conf['source']['ftp']['data_dir'])
+#         ftp.cwd(str(year))
+#         ftp.cwd(month)
+#         ftp.cwd(day)
+#         l = ftp.nlst()
+#         ftp.quit()
+#         l.sort()
+#         fao_layers = filter(lambda x: '.tif' in x, l)
+#         out = []
+#         for layer in fao_layers:
+#             if '.7.' in layer or '.7A.' in layer:
+#                 code = layer
+#                 hour = layer[0:layer.index('.tif')].split('.')[2]
+#                 label = layer[0:layer.index('.tif')].split('.')[0]
+#                 label += ' ('
+#                 label += '-'.join([str(year), month, day])
+#                 label += ', ' + hour + ')'
+#                 out.append({'code': code, 'label': label, 'extensions': ['.tif', '.tfw']})
+#         return out
 
 
 def list_layers_subset(username, password, year, month, from_day, to_day):
@@ -226,3 +239,51 @@ def list_layers_month_subset(username, password, year, month):
                     })
         ftp.quit()
         return out
+
+
+def create_account():
+    # QgsMessageLog.logMessage('create_account!', 'Geobricks TRMM')
+    pass
+
+
+def list_layers(username, password, year, month, day, download_path):
+    month = month if type(month) is str else str(month)
+    month = month if len(month) == 2 else '0' + month
+    day = day if type(day) is str else str(day)
+    day = day if len(day) == 2 else '0' + day
+    if conf['source']['type'] == 'FTP':
+        ftp = FTP(conf['source']['ftp']['base_url'])
+        ftp.login(username, password)
+        ftp.cwd(conf['source']['ftp']['data_dir'])
+        ftp.cwd(str(year))
+        ftp.cwd(month)
+        ftp.cwd(day)
+        l = ftp.nlst()
+        l.sort()
+        fao_layers = l
+        out = []
+        final_folder = os.path.join(download_path, str(year), str(month), str(day))
+        if not os.path.exists(final_folder):
+            os.makedirs(final_folder)
+        for layer in fao_layers:
+            if '.7.' in layer or '.7A.' in layer:
+                local_filename = os.path.join(final_folder, layer)
+                out.append(local_filename)
+                if os.path.isfile(local_filename) is False:
+                    file = open(local_filename, 'wb+')
+                    ftp.retrbinary('RETR %s' % layer, file.write)
+        ftp.quit()
+        return out
+
+
+def date_range(start_date, end_date):
+    dates = []
+    delta = end_date - start_date
+    for i in range(delta.days + 1):
+        dates.append(start_date + datetime.timedelta(days=i))
+    return dates
+
+
+def accept():
+    # QgsMessageLog.logMessage('custom: ', 'Geobricks TRMM')
+    pass

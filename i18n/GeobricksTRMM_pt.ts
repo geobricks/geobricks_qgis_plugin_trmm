@@ -4,27 +4,47 @@
     <name>GeobricksTRMM</name>
     <message>
         <location filename="../geobricks_trmm_qgis.py" line="64"/>
-        <source>pippo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../geobricks_trmm_qgis.py" line="65"/>
-        <source>non esiste</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../geobricks_trmm_qgis.py" line="68"/>
         <source>Download Data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../geobricks_trmm_qgis.py" line="112"/>
+        <location filename="../geobricks_trmm_qgis.py" line="108"/>
         <source>TRMM Data Downloader</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../geobricks_trmm_qgis.py" line="120"/>
-        <source>&amp;TRMM Data Downloader</source>
+        <location filename="../geobricks_trmm_qgis.py" line="141"/>
+        <source>INFO:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../geobricks_trmm_qgis.py" line="141"/>
+        <source>Download complete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../geobricks_trmm_qgis.py" line="160"/>
+        <source>Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../geobricks_trmm_qgis.py" line="156"/>
+        <source>Please insert a username</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../geobricks_trmm_qgis.py" line="158"/>
+        <source>Please insert a password</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../geobricks_trmm_qgis.py" line="160"/>
+        <source>Please insert the download folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../geobricks_trmm_qgis.py" line="49"/>
+        <source>TRMM Data Downloader Plugin Loaded</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

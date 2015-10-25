@@ -21,31 +21,33 @@
  ***************************************************************************/
 """
 import datetime
-import processing
-from gdal_calculations import Dataset, Env
 import os.path
-import subprocess
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, QFileInfo
-from PyQt4.QtGui import QAction, QIcon, QFileDialog, QProgressBar, QDialogButtonBox, QSizePolicy, QGridLayout, QMessageBox, QColor
-from qgis.core import QgsMessageLog, QgsMapLayerRegistry, QgsColorRampShader
-from qgis.gui import QgsMessageBar
-from qgis.analysis import QgsRasterCalculator, QgsRasterCalculatorEntry
-from qgis.core import QgsRasterLayer, QgsRasterShader, QgsSingleBandPseudoColorRenderer
-from ftplib import FTP
-from shutil import copyfile
-from config.trmm_config import config as conf
-
-# Initialize Qt resources from file resources.py
-# Import the code for the dialog
+from geobricks_qgis_plugin_trmm_libs.gdal_calculations import Dataset
+from geobricks_qgis_plugin_trmm_libs.gdal_calculations import Env
+from geobricks_qgis_plugin_trmm_libs.geobricks_trmm.core.trmm_core import date_range
+from geobricks_qgis_plugin_trmm_libs.geobricks_trmm.core.trmm_core import list_layers
+from PyQt4.QtCore import QSettings
+from PyQt4.QtCore import QTranslator
+from PyQt4.QtCore import qVersion
+from PyQt4.QtCore import QCoreApplication
+from PyQt4.QtGui import QAction
+from PyQt4.QtGui import QIcon
+from PyQt4.QtGui import QFileDialog
+from PyQt4.QtGui import QMessageBox
+from PyQt4.QtGui import QColor
+from qgis.core import QgsMessageLog
+from qgis.core import QgsColorRampShader
+from qgis.core import QgsRasterShader
+from qgis.core import QgsSingleBandPseudoColorRenderer
 from geobricks_trmm_qgis_dialog import GeobricksTRMMDialog
+from ExtendedQLabel import ExtendedQLabel
 import os.path
 
 
 class GeobricksTRMM:
-    """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
-        QgsMessageLog.logMessage('==================================================', 'Geobricks TRMM')
+        QgsMessageLog.logMessage(self.tr('TRMM Data Downloader Plugin Loaded'), self.tr('TRMM Data Downloader'))
         self.iface = iface
         self.plugin_dir = os.path.dirname(__file__)
         locale = QSettings().value('locale/userLocale')[0:2]
@@ -53,21 +55,16 @@ class GeobricksTRMM:
             self.plugin_dir,
             'i18n',
             'GeobricksTRMM_{}.qm'.format(locale))
-        QgsMessageLog.logMessage('test: ' + str(locale), 'Geobricks TRMM')
-        QgsMessageLog.logMessage('test: ' + str(locale_path), 'Geobricks TRMM')
-        QgsMessageLog.logMessage('test: ' + str(os.path.exists(locale_path)), 'Geobricks TRMM')
         if os.path.exists(locale_path):
             self.translator = QTranslator()
             self.translator.load(locale_path)
             if qVersion() > '4.3.3':
                 QCoreApplication.installTranslator(self.translator)
-                QgsMessageLog.logMessage('test: ' + str(self.tr('pippo')), 'Geobricks TRMM')
-                QgsMessageLog.logMessage('test: ' + str(self.tr('non esiste')), 'Geobricks TRMM')
         self.dlg = GeobricksTRMMDialog()
         self.actions = []
         self.menu = self.tr('Download Data')
         self.toolbar = self.iface.addToolBar(self.tr('TRMM Data Downloader'))
-        self.toolbar.setObjectName(self.tr('TRMM Data Downloader'))
+        self.toolbar.setObjectName('TRMMDataDownloader')
         self.dlg.download_path.clear()
         self.dlg.pushButton.clicked.connect(self.select_output_file)
         self.is_rendered = False
@@ -111,14 +108,14 @@ class GeobricksTRMM:
         icon_path = ':/plugins/geobricks_qgis_plugin_trmm/icon.png'
         self.add_action(
             icon_path,
-            text=self.tr(u'TRMM Data Downloader'),
+            text=self.tr('TRMM Data Downloader'),
             callback=self.run,
             parent=self.iface.mainWindow())
 
     def unload(self):
         for action in self.actions:
             self.iface.removePluginMenu(
-                self.tr(u'&TRMM Data Downloader'),
+                'TRMMDataDownloader',
                 action)
             self.iface.removeToolBarIcon(action)
         del self.toolbar
@@ -132,7 +129,7 @@ class GeobricksTRMM:
             range = date_range(p['from_date'], p['to_date'])
             for current_date in range:
                 layers = list_layers(p['username'], p['password'], current_date.year, current_date.month, current_date.day, p['download_path'])
-                if p['frequency'] == 'Daily':
+                if p['frequency'] == 0:
                     self.aggregate_layers(layers, current_date)
                 else:
                     if p['open_in_qgis'] is True:
@@ -142,7 +139,7 @@ class GeobricksTRMM:
                 i += 1
                 percent = (i/float(len(range))) * 100
                 self.dlg.progressBar.setValue(percent)
-            QMessageBox.information(None, "INFO:", "Download complete")
+            QMessageBox.information(None, self.tr('INFO:'), self.tr('Download complete'))
         except:
             pass
 
@@ -151,17 +148,17 @@ class GeobricksTRMM:
         p['username'] = self.dlg.username.text()
         p['password'] = self.dlg.password.text()
         p['country'] = self.dlg.country.currentText()
-        p['frequency'] = self.dlg.frequency.currentText()
+        p['frequency'] = self.dlg.frequency.currentIndex()
         p['from_date'] = self.dlg.from_date.date().toPyDate()
         p['to_date'] = self.dlg.to_date.date().toPyDate()
         p['download_path'] = self.dlg.download_path.text()
         p['open_in_qgis'] = self.dlg.open_in_qgis.isChecked()
         if p['username'] is None or len(p['username']) == 0:
-            QMessageBox.critical(None, 'Error', 'Please insert a username')
+            QMessageBox.critical(None, self.tr('Error'), self.tr('Please insert a username'))
         if p['password'] is None or len(p['password']) == 0:
-            QMessageBox.critical(None, 'Error', 'Please insert a password')
+            QMessageBox.critical(None, self.tr('Error'), self.tr('Please insert a password'))
         if p['download_path'] is None or len(p['download_path']) == 0:
-            QMessageBox.critical(None, 'Error', 'Please insert a download path')
+            QMessageBox.critical(None, self.tr('Error'), self.tr('Please insert the download folder'))
         return p
 
     def aggregate_layers(self, layers, d):
@@ -199,9 +196,6 @@ class GeobricksTRMM:
             fcn.setColorRampItemList(lst)
             shader = QgsRasterShader()
             shader.setRasterShaderFunction(fcn)
-            # fileInfo = QFileInfo(file_name)
-            # baseName = fileInfo.baseName()
-            # rl = QgsRasterLayer(file_name, baseName)
             renderer = QgsSingleBandPseudoColorRenderer(rl.dataProvider(), 1, shader)
             rl.setRenderer(renderer)
             rl.triggerRepaint()
@@ -209,52 +203,12 @@ class GeobricksTRMM:
     def run(self):
         if self.is_rendered is False:
             self.dlg.show()
-            yesterday = datetime.date.fromordinal(datetime.date.today().toordinal()-180)
-            # self.dlg.from_date.setDate(yesterday)
-            # self.dlg.to_date.setDate(yesterday)
+            self.dlg.create_account_label.mousePressEvent = self.click_label
             self.dlg.username.setPlaceholderText('e.g. name.surname@example.com')
             self.dlg.password.setPlaceholderText('e.g. name.surname@example.com')
             self.dlg.start_button.clicked.connect(self.start)
             self.is_rendered = True
 
-def create_account():
-    QgsMessageLog.logMessage('create_account!', 'Geobricks TRMM')
+    def click_label(self, event):
+        QgsMessageLog.logMessage('click', self.tr('TRMM Data Downloader'))
 
-def list_layers(username, password, year, month, day, download_path):
-    month = month if type(month) is str else str(month)
-    month = month if len(month) == 2 else '0' + month
-    day = day if type(day) is str else str(day)
-    day = day if len(day) == 2 else '0' + day
-    if conf['source']['type'] == 'FTP':
-        ftp = FTP(conf['source']['ftp']['base_url'])
-        ftp.login(username, password)
-        ftp.cwd(conf['source']['ftp']['data_dir'])
-        ftp.cwd(str(year))
-        ftp.cwd(month)
-        ftp.cwd(day)
-        l = ftp.nlst()
-        l.sort()
-        fao_layers = l
-        out = []
-        final_folder = os.path.join(download_path, str(year), str(month), str(day))
-        if not os.path.exists(final_folder):
-            os.makedirs(final_folder)
-        for layer in fao_layers:
-            if '.7.' in layer or '.7A.' in layer:
-                local_filename = os.path.join(final_folder, layer)
-                out.append(local_filename)
-                if os.path.isfile(local_filename) is False:
-                    file = open(local_filename, 'wb+')
-                    ftp.retrbinary('RETR %s' % layer, file.write)
-        ftp.quit()
-        return out
-
-def date_range(start_date, end_date):
-    dates = []
-    delta = end_date - start_date
-    for i in range(delta.days + 1):
-        dates.append(start_date + datetime.timedelta(days=i))
-    return dates
-
-def accept():
-    QgsMessageLog.logMessage('custom: ', 'Geobricks TRMM')
