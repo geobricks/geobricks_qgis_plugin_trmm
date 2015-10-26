@@ -147,7 +147,6 @@ class GeobricksTRMM:
         p = {}
         p['username'] = self.dlg.username.text()
         p['password'] = self.dlg.password.text()
-        p['country'] = self.dlg.country.currentIndex()
         p['frequency'] = self.dlg.frequency.currentIndex()
         p['from_date'] = self.dlg.from_date.date().toPyDate()
         p['to_date'] = self.dlg.to_date.date().toPyDate()
