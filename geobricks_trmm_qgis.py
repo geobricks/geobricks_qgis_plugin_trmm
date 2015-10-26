@@ -26,6 +26,7 @@ from geobricks_qgis_plugin_trmm_libs.gdal_calculations import Dataset
 from geobricks_qgis_plugin_trmm_libs.gdal_calculations import Env
 from geobricks_qgis_plugin_trmm_libs.geobricks_trmm.core.trmm_core import date_range
 from geobricks_qgis_plugin_trmm_libs.geobricks_trmm.core.trmm_core import list_layers
+from geobricks_qgis_plugin_trmm_libs.geobricks_trmm.core.trmm_core import open_browser_registration
 from PyQt4.QtCore import QSettings
 from PyQt4.QtCore import QTranslator
 from PyQt4.QtCore import qVersion
@@ -40,7 +41,6 @@ from qgis.core import QgsColorRampShader
 from qgis.core import QgsRasterShader
 from qgis.core import QgsSingleBandPseudoColorRenderer
 from geobricks_trmm_qgis_dialog import GeobricksTRMMDialog
-from ExtendedQLabel import ExtendedQLabel
 import os.path
 
 
@@ -105,7 +105,7 @@ class GeobricksTRMM:
         return action
 
     def initGui(self):
-        icon_path = ':/plugins/geobricks_qgis_plugin_trmm/icon.png'
+        icon_path = ':/plugins/GeobricksTRMM/icon.png'
         self.add_action(
             icon_path,
             text=self.tr('TRMM Data Downloader'),
@@ -147,7 +147,7 @@ class GeobricksTRMM:
         p = {}
         p['username'] = self.dlg.username.text()
         p['password'] = self.dlg.password.text()
-        p['country'] = self.dlg.country.currentText()
+        p['country'] = self.dlg.country.currentIndex()
         p['frequency'] = self.dlg.frequency.currentIndex()
         p['from_date'] = self.dlg.from_date.date().toPyDate()
         p['to_date'] = self.dlg.to_date.date().toPyDate()
@@ -203,12 +203,8 @@ class GeobricksTRMM:
     def run(self):
         if self.is_rendered is False:
             self.dlg.show()
-            self.dlg.create_account_label.mousePressEvent = self.click_label
+            self.dlg.create_account_label.mousePressEvent = open_browser_registration
             self.dlg.username.setPlaceholderText('e.g. name.surname@example.com')
             self.dlg.password.setPlaceholderText('e.g. name.surname@example.com')
             self.dlg.start_button.clicked.connect(self.start)
             self.is_rendered = True
-
-    def click_label(self, event):
-        QgsMessageLog.logMessage('click', self.tr('TRMM Data Downloader'))
-
