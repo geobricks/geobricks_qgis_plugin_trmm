@@ -1,6 +1,7 @@
 from ftplib import FTP
 import datetime
 import os
+import webbrowser
 
 
 conf = {
@@ -287,3 +288,7 @@ def date_range(start_date, end_date):
 def accept():
     # QgsMessageLog.logMessage('custom: ', 'Geobricks TRMM')
     pass
+
+
+def open_browser_registration(event):
+    webbrowser.open('http://registration.pps.eosdis.nasa.gov/registration/')
