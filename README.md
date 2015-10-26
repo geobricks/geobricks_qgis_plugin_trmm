@@ -3,3 +3,5 @@
 
 # TRMM Data Downloader for QGIS
 Download TRMM rainfall estimates data and create thematic maps.
+
+![TRMM Data Downloader](images/screenshot.png)
