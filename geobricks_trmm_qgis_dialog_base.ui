@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>390</width>
-    <height>440</height>
+    <height>460</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -528,7 +528,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>264</y>
+     <y>273</y>
      <width>370</width>
      <height>89</height>
     </rect>
@@ -595,7 +595,7 @@
      <x>10</x>
      <y>143</y>
      <width>370</width>
-     <height>118</height>
+     <height>128</height>
     </rect>
    </property>
    <property name="title">
@@ -737,25 +737,43 @@
      </date>
     </property>
    </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>109</y>
+      <width>357</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>11</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Data available from January 1st 1998 to July 31st 2015</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QPushButton" name="start_button">
    <property name="geometry">
     <rect>
      <x>8</x>
-     <y>355</y>
+     <y>365</y>
      <width>375</width>
-     <height>37</height>
+     <height>44</height>
     </rect>
    </property>
    <property name="text">
-    <string>Start</string>
+    <string>Start Layers Download</string>
    </property>
   </widget>
   <widget class="QGroupBox" name="groupBox_4">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>383</y>
+     <y>410</y>
      <width>370</width>
      <height>41</height>
     </rect>

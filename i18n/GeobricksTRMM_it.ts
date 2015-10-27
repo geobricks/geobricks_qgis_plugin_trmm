@@ -14,12 +14,12 @@
         <translation type="obsolete">non esiste</translation>
     </message>
     <message>
-        <location filename="../geobricks_trmm_qgis.py" line="64"/>
+        <location filename="../geobricks_trmm_qgis.py" line="65"/>
         <source>Download Data</source>
         <translation>Acquisizione dati</translation>
     </message>
     <message>
-        <location filename="../geobricks_trmm_qgis.py" line="108"/>
+        <location filename="../geobricks_trmm_qgis.py" line="109"/>
         <source>TRMM Data Downloader</source>
         <translation>Acquisizione dati TRMM</translation>
     </message>
@@ -29,12 +29,12 @@
         <translation type="obsolete">Acquisizione dati TRMM</translation>
     </message>
     <message>
-        <location filename="../geobricks_trmm_qgis.py" line="141"/>
+        <location filename="../geobricks_trmm_qgis.py" line="142"/>
         <source>INFO:</source>
         <translation>INFO:</translation>
     </message>
     <message>
-        <location filename="../geobricks_trmm_qgis.py" line="141"/>
+        <location filename="../geobricks_trmm_qgis.py" line="142"/>
         <source>Download complete</source>
         <translation>Download completato</translation>
     </message>
@@ -59,7 +59,7 @@
         <translation>Si prega di inserire la cartella di download</translation>
     </message>
     <message>
-        <location filename="../geobricks_trmm_qgis.py" line="49"/>
+        <location filename="../geobricks_trmm_qgis.py" line="50"/>
         <source>TRMM Data Downloader Plugin Loaded</source>
         <translation>Il plugin per l&apos; acquisizione dati TRMM é stato caricato</translation>
     </message>
@@ -84,7 +84,7 @@
     <message>
         <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="83"/>
         <source>guido.barbaglia@gmail.com</source>
-        <translation>guido.barbaglia@gmail.com</translation>
+        <translation type="obsolete">guido.barbaglia@gmail.com</translation>
     </message>
     <message>
         <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="70"/>
@@ -92,94 +92,104 @@
         <translation>Password</translation>
     </message>
     <message>
-        <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="108"/>
+        <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="523"/>
         <source>Create an Account</source>
         <translation>Creare un account</translation>
     </message>
     <message>
         <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="124"/>
         <source>Forgot Password?</source>
-        <translation>Password dimenticata?</translation>
+        <translation type="obsolete">Password dimenticata?</translation>
     </message>
     <message>
-        <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="138"/>
+        <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="537"/>
         <source>Download Options</source>
         <translation>Opzioni di download</translation>
     </message>
     <message>
-        <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="150"/>
+        <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="549"/>
         <source>Download Path</source>
         <translation>Cartella di download</translation>
     </message>
     <message>
-        <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="173"/>
+        <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="572"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="186"/>
+        <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="585"/>
         <source>Open in QGIS when the download is complete</source>
         <translation>Aprire in QGIS alla fine del download</translation>
     </message>
     <message>
-        <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="203"/>
+        <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="602"/>
         <source>Query Parameters</source>
         <translation>Parametri</translation>
     </message>
     <message>
-        <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="220"/>
+        <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="619"/>
         <source>Data Frequency</source>
         <translation>Frequenza dati</translation>
     </message>
     <message>
-        <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="234"/>
+        <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="633"/>
         <source>Daily</source>
         <translation>Giornaliera</translation>
     </message>
     <message>
-        <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="239"/>
+        <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="638"/>
         <source>3 Hours</source>
         <translation>Ogni 3 ore</translation>
     </message>
     <message>
         <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="244"/>
         <source>Monthly</source>
-        <translation>Mensile</translation>
+        <translation type="obsolete">Mensile</translation>
     </message>
     <message>
-        <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="258"/>
+        <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="652"/>
         <source>From Date</source>
         <translation>Dal giorno</translation>
     </message>
     <message>
-        <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="312"/>
+        <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="706"/>
         <source>To Date</source>
         <translation>Al giorno</translation>
     </message>
     <message>
         <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="356"/>
         <source>Geographic Area</source>
-        <translation>Area geografica</translation>
+        <translation type="obsolete">Area geografica</translation>
     </message>
     <message>
         <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="370"/>
         <source>World</source>
-        <translation>Mondo</translation>
+        <translation type="obsolete">Mondo</translation>
     </message>
     <message>
         <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="375"/>
         <source>Afghanistan</source>
-        <translation>Afghanistan</translation>
+        <translation type="obsolete">Afghanistan</translation>
     </message>
     <message>
         <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="390"/>
         <source>Start</source>
-        <translation>Avvio</translation>
+        <translation type="obsolete">Avvio</translation>
     </message>
     <message>
-        <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="403"/>
+        <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="782"/>
         <source>Progress</source>
         <translation>Avanzamento</translation>
+    </message>
+    <message>
+        <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="755"/>
+        <source>Data available from January 1st 1998 to July 31st 2015</source>
+        <translation>Dati disponibili dal 1 Gennaio 1998 al 31 Luglio 2015</translation>
+    </message>
+    <message>
+        <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="769"/>
+        <source>Start Layers Download</source>
+        <translation>Avvio Download Layers</translation>
     </message>
 </context>
 </TS>

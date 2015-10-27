@@ -3,13 +3,18 @@
 <context>
     <name>GeobricksTRMM</name>
     <message>
-        <location filename="../geobricks_trmm_qgis.py" line="65"/>
-        <source>Download Data</source>
+        <location filename="../geobricks_trmm_qgis.py" line="50"/>
+        <source>TRMM Data Downloader Plugin Loaded</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../geobricks_trmm_qgis.py" line="109"/>
         <source>TRMM Data Downloader</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../geobricks_trmm_qgis.py" line="65"/>
+        <source>Download Data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -40,11 +45,6 @@
     <message>
         <location filename="../geobricks_trmm_qgis.py" line="160"/>
         <source>Please insert the download folder</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../geobricks_trmm_qgis.py" line="50"/>
-        <source>TRMM Data Downloader Plugin Loaded</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -126,11 +126,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="782"/>
-        <source>Progress</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="755"/>
         <source>Data available from January 1st 1998 to July 31st 2015</source>
         <translation type="unfinished"></translation>
@@ -138,6 +133,11 @@
     <message>
         <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="769"/>
         <source>Start Layers Download</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../geobricks_trmm_qgis_dialog_base.ui" line="782"/>
+        <source>Progress</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
