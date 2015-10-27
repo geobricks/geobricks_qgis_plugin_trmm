@@ -26,7 +26,7 @@ repository=https://github.com/geobricks/geobricks_qgis_plugin_trmm
 # changelog=
 
 # Tags are comma separated with spaces allowed
-tags=
+tags=imagery, raster, rainfall, TRMM, NASA, data acquisition
 
 homepage=https://github.com/geobricks/geobricks_qgis_plugin_trmm
 category=Raster
