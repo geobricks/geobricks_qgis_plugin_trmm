@@ -12,7 +12,7 @@ qgisMinimumVersion=2.0
 description=Download and aggregate TRMM data to create thematic maps.
 version=0.1
 author=Geobricks
-email=postmaster@geobricks.org
+email=guido.barbaglia@geobricks.org
 
 about=Disclaimer TRMM data.
 
