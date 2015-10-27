@@ -4,4 +4,22 @@
 # TRMM Data Downloader for QGIS
 Download TRMM rainfall estimates data and create thematic maps.
 
-![TRMM Data Downloader](images/screenshot.png)
+|Plugin|Output|
+|------|------|
+|![TRMM Data Downloader](images/screenshot.png)|![TRMM Data Downloader](images/screenshot2.png)|
+
+# Data Availability
+Daily data are available from January 1st 1998 to July 31st 2015.
+
+# User Interface
+
+* **Username:** your PPS username, please visit [this link](http://registration.pps.eosdis.nasa.gov/registration/) to request an account
+* **Password:** your PPS password, please visit [this link](http://registration.pps.eosdis.nasa.gov/registration/) to request an account
+* **Data Frequency:** original layers are produced every 3 hours. when the *Daily* options is selected all the layers of each day are aggregated as an average layer
+* **From Date:** starting date of the period of interest
+* **End Date:** ending date of the period of interest
+* **Download Path:** the local folder where the layers must be downloaded. The plugin will generate a subfolder system at this path to organize the layers in order to be divided by year, month and date.
+* **Open in QGIS when the download is completed:** when this flag is checked the layers will be added to the QGIS canvas.
+
+# Developed with
+![IntelliJ](http://www.jetbrains.com/idea/docs/logo_intellij_idea.png)
