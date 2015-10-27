@@ -17,7 +17,7 @@ Daily data are available from January 1st 1998 to July 31st 2015.
 * **Password:** your PPS password, please visit [this link](http://registration.pps.eosdis.nasa.gov/registration/) to request an account
 * **Data Frequency:** original layers are produced every 3 hours. when the *Daily* options is selected all the layers of each day are aggregated as an average layer
 * **From Date:** starting date of the period of interest
-* **End Date:** ending date of the period of interest
+* **To Date:** ending date of the period of interest
 * **Download Path:** the local folder where the layers must be downloaded. The plugin will generate a subfolder system at this path to organize the layers in order to be divided by year, month and date.
 * **Open in QGIS when the download is completed:** when this flag is checked the layers will be added to the QGIS canvas.
 
