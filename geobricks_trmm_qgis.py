@@ -37,6 +37,7 @@ from PyQt4.QtGui import QFileDialog
 from PyQt4.QtGui import QMessageBox
 from PyQt4.QtGui import QColor
 from qgis.core import QgsMessageLog
+from qgis.core import QgsCoordinateReferenceSystem
 from qgis.core import QgsColorRampShader
 from qgis.core import QgsRasterShader
 from qgis.core import QgsSingleBandPseudoColorRenderer
@@ -178,7 +179,6 @@ class GeobricksTRMM:
         file_name = self.dlg.download_path.text() + '/' + str(d.year) + '_' + month + '_' + day + '.tif'
         avg.save(file_name)
         if self.dlg.open_in_qgis.isChecked() is True:
-            rl = self.iface.addRasterLayer(file_name, str('TRMM Estimate Rainfall Daily Aggregate for ' + str(d.year) + '-' + month + '-' + day))
             fcn = QgsColorRampShader()
             fcn.setColorRampType(QgsColorRampShader.INTERPOLATED)
             lst = [
