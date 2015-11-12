@@ -31,11 +31,16 @@ from PyQt4.QtCore import QSettings
 from PyQt4.QtCore import QTranslator
 from PyQt4.QtCore import qVersion
 from PyQt4.QtCore import QCoreApplication
+from PyQt4.QtCore import QDate
 from PyQt4.QtGui import QAction
 from PyQt4.QtGui import QIcon
 from PyQt4.QtGui import QFileDialog
 from PyQt4.QtGui import QMessageBox
 from PyQt4.QtGui import QColor
+from PyQt4.QtGui import QFrame
+from PyQt4.QtGui import QCheckBox
+from qgis.gui import QgsMessageBar
+from PyQt4.QtGui import QSizePolicy
 from qgis.core import QgsMessageLog
 from qgis.core import QgsCoordinateReferenceSystem
 from qgis.core import QgsColorRampShader
@@ -43,13 +48,42 @@ from qgis.core import QgsRasterShader
 from qgis.core import QgsSingleBandPseudoColorRenderer
 from geobricks_trmm_qgis_dialog import GeobricksTRMMDialog
 import os.path
+from PyQt4.QtGui import QVBoxLayout
+from PyQt4.QtGui import QHBoxLayout
+from PyQt4.QtGui import QWidget
+from PyQt4.QtGui import QLabel
+from PyQt4.QtGui import QLineEdit
+from PyQt4.QtGui import QPalette
+from PyQt4.QtGui import QComboBox
+from PyQt4.QtGui import QCalendarWidget
+from PyQt4.QtGui import QPushButton
 
 
 class GeobricksTRMM:
 
     def __init__(self, iface):
-        QgsMessageLog.logMessage(self.tr('TRMM Data Downloader Plugin Loaded'), self.tr('TRMM Data Downloader'))
+        # QgsMessageLog.logMessage(self.tr('TRMM Data Downloader Plugin Loaded'), self.tr('TRMM Data Downloader'))
         self.iface = iface
+        self.layout = QVBoxLayout()
+        self.username = QLineEdit()
+        self.username.setPlaceholderText(self.tr('e.g. name.surname@example.com'))
+        self.password = QLineEdit()
+        self.password.setEchoMode(QLineEdit.Password)
+        self.password.setPlaceholderText(self.tr('e.g. name.surname@example.com'))
+        self.download_folder = QLineEdit()
+        self.aggregation = QComboBox()
+        self.from_date = QCalendarWidget()
+        self.to_date = QCalendarWidget()
+        self.bar = QgsMessageBar()
+        self.lbl_0 = QLabel('<b>' + self.tr('Username') + '</b>')
+        self.lbl_1 = QLabel('<b>' + self.tr('Password') + '</b>')
+        self.lbl_2 = QLabel('<b>' + self.tr('Aggregation') + '</b>')
+        self.from_date_label = QLabel('<b>' + self.tr('From Date') + '</b>')
+        self.to_date_label = QLabel('<b>' + self.tr('To Date') + '</b>')
+        self.lbl_5 = QLabel('<b>' + self.tr('Download Folder') + '</b>')
+        self.lbl_6 = QLabel('<i style="color: blue;">' + self.tr('Create an account') + '</i>')
+        self.lbl_7 = QLabel('<b>' + self.tr('Data availability') + '</b>: ' + self.tr('from January 1st 1998 to July 31st 2015'))
+        self.spacing = 16
         self.plugin_dir = os.path.dirname(__file__)
         locale = QSettings().value('locale/userLocale')[0:2]
         locale_path = os.path.join(
@@ -66,13 +100,138 @@ class GeobricksTRMM:
         self.menu = self.tr('Download Data')
         self.toolbar = self.iface.addToolBar(self.tr('TRMM Data Downloader'))
         self.toolbar.setObjectName('TRMMDataDownloader')
-        self.dlg.download_path.clear()
-        self.dlg.pushButton.clicked.connect(self.select_output_file)
+        # self.dlg.download_path.clear()
+        # self.dlg.pushButton.clicked.connect(self.select_output_file)
         self.is_rendered = False
 
+    def run(self):
+
+        # Build UI
+        self.build_ui()
+
+    def build_ui(self):
+
+        # Link label
+        self.lbl_6.mousePressEvent = open_browser_registration
+        self.palette = QPalette()
+        self.palette.setColor(QPalette.Foreground, QColor('blue'))
+        self.lbl_6.setPalette(self.palette)
+
+        # Aggregation
+        self.aggregation.addItem(self.tr('Daily Sum'), 'SUM')
+        self.aggregation.addItem(self.tr('Daily Average'), 'AVG')
+        self.aggregation.addItem(self.tr('None'), 'NONE')
+
+        # Calendars
+        self.from_date.setMinimumDate(QDate(1998, 1, 1))
+        self.from_date.setMaximumDate(QDate(2015, 7, 31))
+        self.to_date.setMinimumDate(QDate(1998, 1, 1))
+        self.to_date.setMaximumDate(QDate(2015, 7, 31))
+
+        # Message bar
+        self.bar.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        self.layout.addWidget(self.bar)
+
+        # From date panel
+        self.from_date_widget = QWidget()
+        self.from_date_widget_layout = QVBoxLayout()
+        self.from_date_widget_layout.setContentsMargins(0, 0, 0, 0)
+        self.from_date_widget_layout.setSpacing(self.spacing)
+        self.from_date_widget.setLayout(self.from_date_widget_layout)
+        self.from_date_widget_layout.addWidget(self.from_date_label)
+        self.from_date_widget_layout.addWidget(self.from_date)
+        self.from_date.clicked[QDate].connect(self.update_from_label)
+
+        # To date panel
+        self.to_date_widget = QWidget()
+        self.to_date_widget_layout = QVBoxLayout()
+        self.to_date_widget_layout.setContentsMargins(0, 0, 0, 0)
+        self.to_date_widget_layout.setSpacing(self.spacing)
+        self.to_date_widget.setLayout(self.to_date_widget_layout)
+        self.to_date_widget_layout.addWidget(self.to_date_label)
+        self.to_date_widget_layout.addWidget(self.to_date)
+        self.to_date.clicked[QDate].connect(self.update_to_label)
+
+        # Dates panel
+        self.dates_widget = QWidget()
+        self.dates_widget_layout = QHBoxLayout()
+        self.dates_widget_layout.setContentsMargins(0, 0, 0, 0)
+        self.dates_widget_layout.setSpacing(self.spacing)
+        self.dates_widget.setLayout(self.dates_widget_layout)
+        self.dates_widget_layout.addWidget(self.from_date_widget)
+        self.dates_widget_layout.addWidget(self.to_date_widget)
+
+        # Username panel
+        self.username_widget = QWidget()
+        self.username_layout = QVBoxLayout()
+        self.username_layout.setContentsMargins(0, 0, 0, 0)
+        self.username_layout.setSpacing(self.spacing)
+        self.username_widget.setLayout(self.username_layout)
+        self.username_layout.addWidget(self.lbl_0)
+        self.username_layout.addWidget(self.username)
+
+        # Password panel
+        self.password_widget = QWidget()
+        self.password_layout = QVBoxLayout()
+        self.password_layout.setContentsMargins(0, 0, 0, 0)
+        self.password_layout.setSpacing(self.spacing)
+        self.password_widget.setLayout(self.password_layout)
+        self.password_layout.addWidget(self.lbl_1)
+        self.password_layout.addWidget(self.password)
+
+        # Login panel
+        self.login_widget = QWidget()
+        self.login_layout = QHBoxLayout()
+        self.login_layout.setContentsMargins(0, 0, 0, 0)
+        self.login_layout.setSpacing(self.spacing)
+        self.login_widget.setLayout(self.login_layout)
+        self.login_layout.addWidget(self.username_widget)
+        self.login_layout.addWidget(self.password_widget)
+
+        # Download folder panel
+        self.download_folder_widget = QWidget()
+        self.download_folder_layout = QHBoxLayout()
+        self.download_folder_layout.setContentsMargins(0, 0, 0, 0)
+        self.download_folder_layout.setSpacing(0)
+        self.download_folder_widget.setLayout(self.download_folder_layout)
+        self.download_folder_button = QPushButton(self.tr('...'))
+        self.download_folder_button.clicked.connect(self.select_output_file)
+        self.download_folder_layout.addWidget(self.download_folder)
+        self.download_folder_layout.addWidget(self.download_folder_button)
+
+        # Add to canvas
+        self.add_to_canvas = QCheckBox(self.tr('Add output layer to canvas'))
+        self.add_to_canvas.toggle()
+
+        # Download button
+        self.download_button = QPushButton(self.tr('Start Download'))
+
+        # Add widgets to layout
+        self.layout.addWidget(self.login_widget)
+        self.layout.addWidget(self.lbl_6)
+        self.layout.addWidget(self.lbl_2)
+        self.layout.addWidget(self.aggregation)
+        self.layout.addWidget(self.dates_widget)
+        self.layout.addWidget(self.lbl_5)
+        self.layout.addWidget(self.download_folder_widget)
+        self.layout.addWidget(self.add_to_canvas)
+        self.layout.addWidget(self.download_button)
+
+        # Set layout
+        self.dlg.setLayout(self.layout)
+
+        # Show dialog
+        self.dlg.show()
+
+    def update_from_label(self, date):
+       self.from_date_label.setText('<b>' + self.tr('From Date') + '</b>: ' + date.toString('MMMM d, yyyy'))
+
+    def update_to_label(self, date):
+        self.to_date_label.setText('<b>' + self.tr('To Date') + '</b>: ' + date.toString('MMMM d, yyyy'))
+
     def select_output_file(self):
-        filename = QFileDialog.getExistingDirectory(self.dlg, "Select Directory")
-        self.dlg.download_path.setText(filename)
+        filename = QFileDialog.getExistingDirectory(self.dlg, self.tr('Select Directory'))
+        self.download_folder.setText(filename)
 
     def tr(self, message):
         return QCoreApplication.translate('GeobricksTRMM', message)
@@ -199,11 +358,11 @@ class GeobricksTRMM:
             rl.setRenderer(renderer)
             rl.triggerRepaint()
 
-    def run(self):
-        if self.is_rendered is False:
-            self.dlg.show()
-            self.dlg.create_account_label.mousePressEvent = open_browser_registration
-            self.dlg.username.setPlaceholderText('e.g. name.surname@example.com')
-            self.dlg.password.setPlaceholderText('e.g. name.surname@example.com')
-            self.dlg.start_button.clicked.connect(self.start)
-            self.is_rendered = True
+    # def run(self):
+    #     if self.is_rendered is False:
+    #         self.dlg.show()
+    #         self.dlg.create_account_label.mousePressEvent = open_browser_registration
+    #         self.dlg.username.setPlaceholderText('e.g. name.surname@example.com')
+    #         self.dlg.password.setPlaceholderText('e.g. name.surname@example.com')
+    #         self.dlg.start_button.clicked.connect(self.start)
+    #         self.is_rendered = True
