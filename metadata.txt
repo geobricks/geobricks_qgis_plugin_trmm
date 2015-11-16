@@ -10,7 +10,7 @@
 name=TRMM Data Downloader
 qgisMinimumVersion=2.0
 description=Download and aggregate TRMM data to create thematic maps.
-version=0.1
+version=0.2
 author=Geobricks
 email=guido.barbaglia@geobricks.org
 
