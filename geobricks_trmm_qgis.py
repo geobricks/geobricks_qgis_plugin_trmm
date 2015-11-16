@@ -20,7 +20,6 @@
  *                                                                         *
  ***************************************************************************/
 """
-import datetime
 import os.path
 from geobricks_qgis_plugin_trmm_libs.gdal_calculations import Dataset
 from geobricks_qgis_plugin_trmm_libs.gdal_calculations import Env
@@ -39,10 +38,9 @@ from PyQt4.QtGui import QMessageBox
 from PyQt4.QtGui import QColor
 from PyQt4.QtGui import QFrame
 from PyQt4.QtGui import QCheckBox
+from PyQt4.QtGui import QProgressBar
 from qgis.gui import QgsMessageBar
 from PyQt4.QtGui import QSizePolicy
-from qgis.core import QgsMessageLog
-from qgis.core import QgsCoordinateReferenceSystem
 from qgis.core import QgsColorRampShader
 from qgis.core import QgsRasterShader
 from qgis.core import QgsSingleBandPseudoColorRenderer
@@ -62,7 +60,6 @@ from PyQt4.QtGui import QPushButton
 class GeobricksTRMM:
 
     def __init__(self, iface):
-        # QgsMessageLog.logMessage(self.tr('TRMM Data Downloader Plugin Loaded'), self.tr('TRMM Data Downloader'))
         self.iface = iface
         self.layout = QVBoxLayout()
         self.username = QLineEdit()
@@ -71,18 +68,48 @@ class GeobricksTRMM:
         self.password.setEchoMode(QLineEdit.Password)
         self.password.setPlaceholderText(self.tr('e.g. name.surname@example.com'))
         self.download_folder = QLineEdit()
-        self.aggregation = QComboBox()
+        try:
+            if self.last_download_folder is not None:
+                self.download_folder.setText(self.last_download_folder)
+        except:
+            self.last_download_folder = None
+        self.frequency = QComboBox()
+        self.frequency.addItem(self.tr('Daily Sum'), 'SUM')
+        self.frequency.addItem(self.tr('Daily Average'), 'AVG')
+        self.frequency.addItem(self.tr('None'), 'NONE')
         self.from_date = QCalendarWidget()
         self.to_date = QCalendarWidget()
         self.bar = QgsMessageBar()
         self.lbl_0 = QLabel('<b>' + self.tr('Username') + '</b>')
         self.lbl_1 = QLabel('<b>' + self.tr('Password') + '</b>')
         self.lbl_2 = QLabel('<b>' + self.tr('Aggregation') + '</b>')
-        self.from_date_label = QLabel('<b>' + self.tr('From Date') + '</b>')
-        self.to_date_label = QLabel('<b>' + self.tr('To Date') + '</b>')
+        self.from_date_label = QLabel('<b>' + self.tr('From Date') + '</b>: ' + QDate(2015, 7, 31).toString('MMMM d, yyyy'))
+        self.to_date_label = QLabel('<b>' + self.tr('To Date') + '</b>: ' + QDate(2015, 7, 31).toString('MMMM d, yyyy'))
         self.lbl_5 = QLabel('<b>' + self.tr('Download Folder') + '</b>')
         self.lbl_6 = QLabel('<i style="color: blue;">' + self.tr('Create an account') + '</i>')
         self.lbl_7 = QLabel('<b>' + self.tr('Data availability') + '</b>: ' + self.tr('from January 1st 1998 to July 31st 2015'))
+        self.palette = QPalette()
+        self.from_date_widget = QWidget()
+        self.from_date_widget_layout = QVBoxLayout()
+        self.dates_widget = QWidget()
+        self.dates_widget_layout = QHBoxLayout()
+        self.username_widget = QWidget()
+        self.username_layout = QVBoxLayout()
+        self.password_widget = QWidget()
+        self.password_layout = QVBoxLayout()
+        self.progressBar = QProgressBar()
+        self.progress_label = QLabel('<b>' + self.tr('Progress') + '</b>')
+        self.login_widget = QWidget()
+        self.login_layout = QHBoxLayout()
+        self.download_folder_widget = QWidget()
+        self.download_folder_layout = QHBoxLayout()
+        self.download_folder_button = QPushButton(self.tr('...'))
+        self.download_button = QPushButton(self.tr('Start Download'))
+        self.close_button = QPushButton(self.tr('Close Window'))
+        self.add_to_canvas = QCheckBox(self.tr('Add output layer to canvas'))
+        self.add_to_canvas.setChecked(True)
+        self.to_date_widget = QWidget()
+        self.to_date_widget_layout = QVBoxLayout()
         self.spacing = 16
         self.plugin_dir = os.path.dirname(__file__)
         locale = QSettings().value('locale/userLocale')[0:2]
@@ -100,8 +127,6 @@ class GeobricksTRMM:
         self.menu = self.tr('Download Data')
         self.toolbar = self.iface.addToolBar(self.tr('TRMM Data Downloader'))
         self.toolbar.setObjectName('TRMMDataDownloader')
-        # self.dlg.download_path.clear()
-        # self.dlg.pushButton.clicked.connect(self.select_output_file)
         self.is_rendered = False
 
     def run(self):
@@ -113,14 +138,8 @@ class GeobricksTRMM:
 
         # Link label
         self.lbl_6.mousePressEvent = open_browser_registration
-        self.palette = QPalette()
         self.palette.setColor(QPalette.Foreground, QColor('blue'))
         self.lbl_6.setPalette(self.palette)
-
-        # Aggregation
-        self.aggregation.addItem(self.tr('Daily Sum'), 'SUM')
-        self.aggregation.addItem(self.tr('Daily Average'), 'AVG')
-        self.aggregation.addItem(self.tr('None'), 'NONE')
 
         # Calendars
         self.from_date.setMinimumDate(QDate(1998, 1, 1))
@@ -133,8 +152,6 @@ class GeobricksTRMM:
         self.layout.addWidget(self.bar)
 
         # From date panel
-        self.from_date_widget = QWidget()
-        self.from_date_widget_layout = QVBoxLayout()
         self.from_date_widget_layout.setContentsMargins(0, 0, 0, 0)
         self.from_date_widget_layout.setSpacing(self.spacing)
         self.from_date_widget.setLayout(self.from_date_widget_layout)
@@ -143,8 +160,6 @@ class GeobricksTRMM:
         self.from_date.clicked[QDate].connect(self.update_from_label)
 
         # To date panel
-        self.to_date_widget = QWidget()
-        self.to_date_widget_layout = QVBoxLayout()
         self.to_date_widget_layout.setContentsMargins(0, 0, 0, 0)
         self.to_date_widget_layout.setSpacing(self.spacing)
         self.to_date_widget.setLayout(self.to_date_widget_layout)
@@ -153,8 +168,6 @@ class GeobricksTRMM:
         self.to_date.clicked[QDate].connect(self.update_to_label)
 
         # Dates panel
-        self.dates_widget = QWidget()
-        self.dates_widget_layout = QHBoxLayout()
         self.dates_widget_layout.setContentsMargins(0, 0, 0, 0)
         self.dates_widget_layout.setSpacing(self.spacing)
         self.dates_widget.setLayout(self.dates_widget_layout)
@@ -162,8 +175,6 @@ class GeobricksTRMM:
         self.dates_widget_layout.addWidget(self.to_date_widget)
 
         # Username panel
-        self.username_widget = QWidget()
-        self.username_layout = QVBoxLayout()
         self.username_layout.setContentsMargins(0, 0, 0, 0)
         self.username_layout.setSpacing(self.spacing)
         self.username_widget.setLayout(self.username_layout)
@@ -171,8 +182,6 @@ class GeobricksTRMM:
         self.username_layout.addWidget(self.username)
 
         # Password panel
-        self.password_widget = QWidget()
-        self.password_layout = QVBoxLayout()
         self.password_layout.setContentsMargins(0, 0, 0, 0)
         self.password_layout.setSpacing(self.spacing)
         self.password_widget.setLayout(self.password_layout)
@@ -180,8 +189,6 @@ class GeobricksTRMM:
         self.password_layout.addWidget(self.password)
 
         # Login panel
-        self.login_widget = QWidget()
-        self.login_layout = QHBoxLayout()
         self.login_layout.setContentsMargins(0, 0, 0, 0)
         self.login_layout.setSpacing(self.spacing)
         self.login_widget.setLayout(self.login_layout)
@@ -189,33 +196,32 @@ class GeobricksTRMM:
         self.login_layout.addWidget(self.password_widget)
 
         # Download folder panel
-        self.download_folder_widget = QWidget()
-        self.download_folder_layout = QHBoxLayout()
         self.download_folder_layout.setContentsMargins(0, 0, 0, 0)
         self.download_folder_layout.setSpacing(0)
         self.download_folder_widget.setLayout(self.download_folder_layout)
-        self.download_folder_button = QPushButton(self.tr('...'))
         self.download_folder_button.clicked.connect(self.select_output_file)
         self.download_folder_layout.addWidget(self.download_folder)
         self.download_folder_layout.addWidget(self.download_folder_button)
 
-        # Add to canvas
-        self.add_to_canvas = QCheckBox(self.tr('Add output layer to canvas'))
-        self.add_to_canvas.toggle()
-
         # Download button
-        self.download_button = QPushButton(self.tr('Start Download'))
+        self.download_button.clicked.connect(self.start)
+
+        # Close button
+        self.close_button.clicked.connect(self.close)
 
         # Add widgets to layout
         self.layout.addWidget(self.login_widget)
         self.layout.addWidget(self.lbl_6)
         self.layout.addWidget(self.lbl_2)
-        self.layout.addWidget(self.aggregation)
+        self.layout.addWidget(self.frequency)
         self.layout.addWidget(self.dates_widget)
         self.layout.addWidget(self.lbl_5)
         self.layout.addWidget(self.download_folder_widget)
         self.layout.addWidget(self.add_to_canvas)
         self.layout.addWidget(self.download_button)
+        self.layout.addWidget(self.progress_label)
+        self.layout.addWidget(self.progressBar)
+        self.layout.addWidget(self.close_button)
 
         # Set layout
         self.dlg.setLayout(self.layout)
@@ -224,14 +230,15 @@ class GeobricksTRMM:
         self.dlg.show()
 
     def update_from_label(self, date):
-       self.from_date_label.setText('<b>' + self.tr('From Date') + '</b>: ' + date.toString('MMMM d, yyyy'))
+        self.from_date_label.setText('<b>' + self.tr('From Date') + '</b>: ' + date.toString('MMMM d, yyyy'))
 
     def update_to_label(self, date):
         self.to_date_label.setText('<b>' + self.tr('To Date') + '</b>: ' + date.toString('MMMM d, yyyy'))
 
     def select_output_file(self):
-        filename = QFileDialog.getExistingDirectory(self.dlg, self.tr('Select Directory'))
-        self.download_folder.setText(filename)
+        filename = QFileDialog.getExistingDirectory(self.dlg, self.tr('Select Folder'))
+        self.last_download_folder = filename
+        self.download_folder.setText(self.last_download_folder)
 
     def tr(self, message):
         return QCoreApplication.translate('GeobricksTRMM', message)
@@ -280,16 +287,19 @@ class GeobricksTRMM:
             self.iface.removeToolBarIcon(action)
         del self.toolbar
 
+    def close(self):
+        self.dlg.close()
+
     def start(self):
         p = self.collect_parameters()
-        self.dlg.progressBar.setMaximum(100)
-        self.dlg.progressBar.setValue(0)
+        self.progressBar.setMaximum(100)
+        self.progressBar.setValue(0)
         i = 0
         try:
             range = date_range(p['from_date'], p['to_date'])
             for current_date in range:
                 layers = list_layers(p['username'], p['password'], current_date.year, current_date.month, current_date.day, p['download_path'])
-                if p['frequency'] == 0:
+                if p['frequency'] is not 'NONE':
                     self.aggregate_layers(layers, current_date)
                 else:
                     if p['open_in_qgis'] is True:
@@ -298,46 +308,61 @@ class GeobricksTRMM:
                                 self.iface.addRasterLayer(l, str(l))
                 i += 1
                 percent = (i/float(len(range))) * 100
-                self.dlg.progressBar.setValue(percent)
-            QMessageBox.information(None, self.tr('INFO:'), self.tr('Download complete'))
-        except:
-            pass
+                self.progressBar.setValue(percent)
+        except Exception, e:
+            self.bar.pushMessage(None, str(e), level=QgsMessageBar.CRITICAL)
 
     def collect_parameters(self):
-        p = {}
-        p['username'] = self.dlg.username.text()
-        p['password'] = self.dlg.password.text()
-        p['frequency'] = self.dlg.frequency.currentIndex()
-        p['from_date'] = self.dlg.from_date.date().toPyDate()
-        p['to_date'] = self.dlg.to_date.date().toPyDate()
-        p['download_path'] = self.dlg.download_path.text()
-        p['open_in_qgis'] = self.dlg.open_in_qgis.isChecked()
+        p = {
+            'username': self.username.text(),
+            'password': self.password.text(),
+            'frequency': self.frequency.itemData(self.frequency.currentIndex()),
+            'from_date': self.from_date.selectedDate().toPyDate(),
+            'to_date': self.to_date.selectedDate().toPyDate(),
+            'download_path': self.download_folder.text(),
+            'open_in_qgis': self.add_to_canvas.isChecked()
+        }
         if p['username'] is None or len(p['username']) == 0:
-            QMessageBox.critical(None, self.tr('Error'), self.tr('Please insert a username'))
+            self.bar.pushMessage(None, self.tr('Please insert the username'), level=QgsMessageBar.CRITICAL)
         if p['password'] is None or len(p['password']) == 0:
-            QMessageBox.critical(None, self.tr('Error'), self.tr('Please insert a password'))
+            self.bar.pushMessage(None, self.tr('Please insert the password'), level=QgsMessageBar.CRITICAL)
         if p['download_path'] is None or len(p['download_path']) == 0:
-            QMessageBox.critical(None, self.tr('Error'), self.tr('Please insert the download folder'))
+            self.bar.pushMessage(None, self.tr('Please select the download folder'), level=QgsMessageBar.CRITICAL)
         return p
 
     def aggregate_layers(self, layers, d):
+        aggregation = self.frequency.itemData(self.frequency.currentIndex())
         month = str(d.month)
         month = month if len(month) == 2 else '0' + month
         day = str(d.day)
         day = day if len(day) == 2 else '0' + day
         filtered_layers = filter(lambda x: '.tif' in x, layers)
         datasets = []
+        file_name = None
         for l in filtered_layers:
             datasets.append(Dataset(l))
         sum = datasets[0]
         for i in range(1,len(datasets)-1):
             sum += datasets[i]
-        Env.overwrite = True
-        avg = sum
-        avg /= len(datasets)
-        file_name = self.dlg.download_path.text() + '/' + str(d.year) + '_' + month + '_' + day + '.tif'
-        avg.save(file_name)
-        if self.dlg.open_in_qgis.isChecked() is True:
+        if aggregation == 'SUM':
+            Env.overwrite = True
+            avg = sum
+            file_name = self.download_folder.text() + '/' + str(d.year) + '_' + month + '_' + day + '_SUM.tif'
+            avg.save(file_name)
+        elif aggregation == 'AVG':
+            Env.overwrite = True
+            avg = sum
+            avg /= len(datasets)
+            file_name = self.download_folder.text() + '/' + str(d.year) + '_' + month + '_' + day + '_AVG.tif'
+            avg.save(file_name)
+        if self.add_to_canvas.isChecked() is True:
+            self.bar.pushMessage(None, str(file_name), level=QgsMessageBar.INFO)
+            title = None
+            if aggregation == 'SUM':
+                title = self.tr('TRMM Aggregate (Sum): ') + str(d.year) + '-' + str(month) + '-' + str(day)
+            elif aggregation == 'AVG':
+                title = self.tr('TRMM Aggregate (Average): ') + str(d.year) + '-' + str(month) + '-' + str(day)
+            rl = self.iface.addRasterLayer(file_name, title)
             fcn = QgsColorRampShader()
             fcn.setColorRampType(QgsColorRampShader.INTERPOLATED)
             lst = [
@@ -357,12 +382,3 @@ class GeobricksTRMM:
             renderer = QgsSingleBandPseudoColorRenderer(rl.dataProvider(), 1, shader)
             rl.setRenderer(renderer)
             rl.triggerRepaint()
-
-    # def run(self):
-    #     if self.is_rendered is False:
-    #         self.dlg.show()
-    #         self.dlg.create_account_label.mousePressEvent = open_browser_registration
-    #         self.dlg.username.setPlaceholderText('e.g. name.surname@example.com')
-    #         self.dlg.password.setPlaceholderText('e.g. name.surname@example.com')
-    #         self.dlg.start_button.clicked.connect(self.start)
-    #         self.is_rendered = True
