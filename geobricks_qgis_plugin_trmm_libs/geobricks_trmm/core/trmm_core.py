@@ -276,6 +276,8 @@ def list_layers(username, password, year, month, day, download_path):
         ftp.quit()
         return out
 
+# print list_layers('guido.barbaglia@gmail.com', 'guido.barbaglia@gmail.com', 2015, 7, 31, '/Users/simona/Desktop/QGIS_TEST')
+
 
 def date_range(start_date, end_date):
     dates = []
