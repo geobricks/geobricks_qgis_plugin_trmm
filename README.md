@@ -21,5 +21,8 @@ Daily data are available from January 1st 1998 to July 31st 2015.
 * **Download Path:** the local folder where the layers must be downloaded. The plugin will generate a subfolder system at this path to organize the layers in order to be divided by year, month and date.
 * **Open in QGIS when the download is completed:** when this flag is checked the layers will be added to the QGIS canvas.
 
+# Multilanguage
+The plugin is currently available in English and Italian. A project on [Transifex](https://www.transifex.com/) has been added at [this URL](https://www.transifex.com/geobricks/trmm-data-downloader/dashboard/). Anyone can contribute to add more languages.
+
 # Developed with
 ![IntelliJ](http://www.jetbrains.com/idea/docs/logo_intellij_idea.png)
