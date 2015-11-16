@@ -55,12 +55,24 @@ from PyQt4.QtGui import QPalette
 from PyQt4.QtGui import QComboBox
 from PyQt4.QtGui import QCalendarWidget
 from PyQt4.QtGui import QPushButton
+from qgis.core import QgsMessageLog
 
 
 class GeobricksTRMM:
 
     def __init__(self, iface):
         self.iface = iface
+        self.plugin_dir = os.path.dirname(__file__)
+        locale = QSettings().value('locale/userLocale')[0:2]
+        locale_path = os.path.join(
+            self.plugin_dir,
+            'i18n',
+            'geobricks_trmm_qgis_{}.qm'.format(locale))
+        if os.path.exists(locale_path):
+            self.translator = QTranslator()
+            self.translator.load(locale_path)
+            if qVersion() > '4.3.3':
+                QCoreApplication.installTranslator(self.translator)
         self.layout = QVBoxLayout()
         self.username = QLineEdit()
         self.username.setPlaceholderText(self.tr('e.g. name.surname@example.com'))
@@ -111,17 +123,7 @@ class GeobricksTRMM:
         self.to_date_widget = QWidget()
         self.to_date_widget_layout = QVBoxLayout()
         self.spacing = 16
-        self.plugin_dir = os.path.dirname(__file__)
-        locale = QSettings().value('locale/userLocale')[0:2]
-        locale_path = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            'GeobricksTRMM_{}.qm'.format(locale))
-        if os.path.exists(locale_path):
-            self.translator = QTranslator()
-            self.translator.load(locale_path)
-            if qVersion() > '4.3.3':
-                QCoreApplication.installTranslator(self.translator)
+
         self.dlg = GeobricksTRMMDialog()
         self.actions = []
         self.menu = self.tr('Download Data')
@@ -241,7 +243,7 @@ class GeobricksTRMM:
         self.download_folder.setText(self.last_download_folder)
 
     def tr(self, message):
-        return QCoreApplication.translate('GeobricksTRMM', message)
+        return QCoreApplication.translate('geobricks_trmm_qgis', message)
 
     def add_action(
             self,
@@ -272,7 +274,7 @@ class GeobricksTRMM:
         return action
 
     def initGui(self):
-        icon_path = ':/plugins/GeobricksTRMM/icon.png'
+        icon_path = ':/plugins/geobricks_qgis_plugin_trmm/icon.png'
         self.add_action(
             icon_path,
             text=self.tr('TRMM Data Downloader'),
@@ -292,25 +294,26 @@ class GeobricksTRMM:
 
     def start(self):
         p = self.collect_parameters()
-        self.progressBar.setMaximum(100)
-        self.progressBar.setValue(0)
-        i = 0
-        try:
-            range = date_range(p['from_date'], p['to_date'])
-            for current_date in range:
-                layers = list_layers(p['username'], p['password'], current_date.year, current_date.month, current_date.day, p['download_path'])
-                if p['frequency'] is not 'NONE':
-                    self.aggregate_layers(layers, current_date)
-                else:
-                    if p['open_in_qgis'] is True:
-                        for l in layers:
-                            if '.tfw' not in l:
-                                self.iface.addRasterLayer(l, str(l))
-                i += 1
-                percent = (i/float(len(range))) * 100
-                self.progressBar.setValue(percent)
-        except Exception, e:
-            self.bar.pushMessage(None, str(e), level=QgsMessageBar.CRITICAL)
+        if p is not None:
+            self.progressBar.setMaximum(100)
+            self.progressBar.setValue(0)
+            i = 0
+            try:
+                range = date_range(p['from_date'], p['to_date'])
+                for current_date in range:
+                    layers = list_layers(p['username'], p['password'], current_date.year, current_date.month, current_date.day, p['download_path'])
+                    if p['frequency'] is not 'NONE':
+                        self.aggregate_layers(layers, current_date)
+                    else:
+                        if p['open_in_qgis'] is True:
+                            for l in layers:
+                                if '.tfw' not in l:
+                                    self.iface.addRasterLayer(l, str(l))
+                    i += 1
+                    percent = (i/float(len(range))) * 100
+                    self.progressBar.setValue(percent)
+            except Exception, e:
+                self.bar.pushMessage(None, str(e), level=QgsMessageBar.CRITICAL)
 
     def collect_parameters(self):
         p = {
@@ -324,11 +327,12 @@ class GeobricksTRMM:
         }
         if p['username'] is None or len(p['username']) == 0:
             self.bar.pushMessage(None, self.tr('Please insert the username'), level=QgsMessageBar.CRITICAL)
-        if p['password'] is None or len(p['password']) == 0:
+        elif p['password'] is None or len(p['password']) == 0:
             self.bar.pushMessage(None, self.tr('Please insert the password'), level=QgsMessageBar.CRITICAL)
-        if p['download_path'] is None or len(p['download_path']) == 0:
+        elif p['download_path'] is None or len(p['download_path']) == 0:
             self.bar.pushMessage(None, self.tr('Please select the download folder'), level=QgsMessageBar.CRITICAL)
-        return p
+        else:
+            return p
 
     def aggregate_layers(self, layers, d):
         aggregation = self.frequency.itemData(self.frequency.currentIndex())
